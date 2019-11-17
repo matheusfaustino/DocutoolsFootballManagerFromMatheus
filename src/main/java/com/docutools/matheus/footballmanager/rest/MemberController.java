@@ -22,4 +22,11 @@ public class MemberController {
 			@RequestParam(required = false, defaultValue = "10") int size) {
 		return this.memberService.listAllPaginated(page, size);
 	}
+
+	@GetMapping("/{id}")
+	public MemberDTO fetchMember(@PathVariable("id") String uuid) {
+		Optional<MemberDTO> member = this.memberService.find(UUID.fromString(uuid));
+
+		return member.orElseThrow(MemberNotFoundException::new);
+	}
 }

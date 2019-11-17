@@ -31,4 +31,15 @@ public class MemberService {
 				.map(MemberDTO::convertToDto)
 				.collect(Collectors.toList());
 	}
+
+	/**
+	 * Retrieve information from a single player
+	 * @param uuid member's identification
+	 * @return The member object or null
+	 */
+	public Optional<MemberDTO> find(UUID uuid) {
+		Optional<Member> row = this.membersRepository.findById(uuid);
+
+		return row.map(MemberDTO::convertToDto);
+	}
 }

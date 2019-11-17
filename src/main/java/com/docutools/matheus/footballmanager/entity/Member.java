@@ -22,6 +22,7 @@ public class Member {
     @Id
     @GeneratedValue
 	@Setter(AccessLevel.PROTECTED)
+	@Column(columnDefinition = "BINARY(16)")
     private UUID memberId;
 
     @Column()
