@@ -1,15 +1,14 @@
 package com.docutools.matheus.footballmanager.rest;
 
 import com.docutools.matheus.footballmanager.dto.MemberDTO;
+import com.docutools.matheus.footballmanager.exception.MemberNotFoundException;
 import com.docutools.matheus.footballmanager.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("members")
@@ -18,7 +17,9 @@ public class MemberController {
 	private MemberService memberService;
 
 	@GetMapping("/")
-	public List<MemberDTO> listAll() {
-		return memberService.listAll();
+	public List<MemberDTO> listAll(
+			@RequestParam(required = false, defaultValue = "0") int page,
+			@RequestParam(required = false, defaultValue = "10") int size) {
+		return this.memberService.listAllPaginated(page, size);
 	}
 }
