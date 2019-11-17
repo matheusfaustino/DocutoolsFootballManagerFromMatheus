@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.UUID;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@Where(clause = "deleted = false")
 public class Member {
 
     @Id
@@ -30,4 +32,7 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     private TeamRoles role;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean deleted;
 }
