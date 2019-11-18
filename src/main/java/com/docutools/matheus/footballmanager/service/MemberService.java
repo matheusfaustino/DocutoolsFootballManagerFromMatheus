@@ -77,7 +77,6 @@ public class MemberService {
 	 */
 	@Transactional
 	public void deleteInBatch(List<UUID> uuids) {
-		/* @todo go back here to use extracted method to throws exception on map stream */
 		/**
 		 * I do not used .stream() here because the IDE recommended using forEach without .stream
 		 */
@@ -86,8 +85,8 @@ public class MemberService {
 					  here i am trying to validate if the item exists before deleting.
 					  I tried using two maps, forEach and etc, but none happened the way I would like to
 					 */
-					this.membersRepository.findById(uuid).orElseThrow(MemberNotFoundException::new);
-					this.membersRepository.delete(uuid);
+					Member member = this.findMemberByUuid(uuid);
+					this.membersRepository.delete(member);
 				});
 	}
 
