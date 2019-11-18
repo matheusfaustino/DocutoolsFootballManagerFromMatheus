@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,8 +21,8 @@ public class MemberController {
 
 	@GetMapping("/")
 	public List<MemberDTO> listAll(
-			@RequestParam(required = false, defaultValue = "0") int page,
-			@RequestParam(required = false, defaultValue = "10") int size) {
+			@RequestParam(required = false, defaultValue = "0") @PositiveOrZero int page,
+			@RequestParam(required = false, defaultValue = "10") @Positive int size) {
 		return this.memberService.listAllPaginated(page, size);
 	}
 

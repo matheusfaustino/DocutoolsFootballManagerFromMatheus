@@ -4,8 +4,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Entity
@@ -19,6 +21,8 @@ public class Role {
 	private int id;
 
 	@Column(length = 30)
+	@NotNull(message = "You should pass a valid label for the role")
+	@Length(min = 0, max = 30)
 	private String label;
 
 	@ManyToOne
