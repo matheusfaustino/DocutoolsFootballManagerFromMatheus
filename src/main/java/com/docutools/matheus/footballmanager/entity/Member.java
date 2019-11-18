@@ -37,6 +37,9 @@ public class Member {
 	@NotNull(message = "You should pass a role for the member")
     private Role role;
 
-    @Column(columnDefinition = "boolean default false")
-    private Boolean deleted;
+	/**
+	 * I set it because in the database the default is right, but the insert made by hibernate will force the NULL value
+	 */
+	@Column(columnDefinition = "boolean default false")
+    private Boolean deleted = false;
 }
