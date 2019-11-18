@@ -39,7 +39,7 @@ public class MemberController {
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity deleteMembers(@PathVariable("id") String uuid) {
+	public ResponseEntity deleteMember(@PathVariable("id") String uuid) {
 		/*
 		 to keep it simple, I transform it ot an list to be able to reused the other function and maintain the same logic
 		 */
