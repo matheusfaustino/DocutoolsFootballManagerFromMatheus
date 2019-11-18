@@ -20,7 +20,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @Where(clause = "deleted = false")
 public class Member {
-
     @Id
     @GeneratedValue
 	@Setter(AccessLevel.PROTECTED)
