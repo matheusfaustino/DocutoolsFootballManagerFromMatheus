@@ -6,7 +6,9 @@ import com.docutools.matheus.footballmanager.roles.TeamRoles;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Getter

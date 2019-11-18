@@ -1,9 +1,13 @@
 package com.docutools.matheus.footballmanager.service;
 
 import com.docutools.matheus.footballmanager.dto.MemberDTO;
+import com.docutools.matheus.footballmanager.dto.MemberPersistDTO;
 import com.docutools.matheus.footballmanager.entity.Member;
+import com.docutools.matheus.footballmanager.entity.Role;
 import com.docutools.matheus.footballmanager.exception.MemberNotFoundException;
+import com.docutools.matheus.footballmanager.exception.RoleNotFoundException;
 import com.docutools.matheus.footballmanager.repository.MemberRepository;
+import com.docutools.matheus.footballmanager.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +23,9 @@ import java.util.stream.Collectors;
 public class MemberService {
 	@Autowired
 	private MemberRepository membersRepository;
+
+	@Autowired
+	private RoleRepository roleRepository;
 
 	/**
 	 * List all members from the team
@@ -62,5 +69,19 @@ public class MemberService {
 					this.membersRepository.findById(uuid).orElseThrow(MemberNotFoundException::new);
 					this.membersRepository.delete(uuid);
 				});
+	}
+
+	/**
+	 * Validate data and persist in the database
+	 * @param memberPersistDTO data sent by the client (usually)
+	 * @return a version of member to return to the client
+	 */
+	public MemberDTO addMember(MemberPersistDTO memberPersistDTO) {
+		Member member = new Member();
+		Role role = this.roleRepository.findById(memberPersistDTO.getRole().getId()).orElseThrow(RoleNotFoundException::new);
+		member.setName(memberPersistDTO.getName());
+		member.setRole(role);
+
+		return MemberDTO.convertToDto(this.membersRepository.saveAndFlush(member));
 	}
 }

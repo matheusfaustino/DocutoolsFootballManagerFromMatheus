@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.ScriptAssert;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -21,6 +22,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @Where(clause = "deleted = false")
+@ScriptAssert(lang = "javascript", script = "_this.role.parentId !== null", message = "You should pass a specialized role for this member")
 public class Member {
     @Id
     @GeneratedValue

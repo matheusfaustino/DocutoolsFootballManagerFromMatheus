@@ -1,6 +1,7 @@
 package com.docutools.matheus.footballmanager.rest;
 
 import com.docutools.matheus.footballmanager.dto.MemberDTO;
+import com.docutools.matheus.footballmanager.dto.MemberPersistDTO;
 import com.docutools.matheus.footballmanager.exception.MemberNotFoundException;
 import com.docutools.matheus.footballmanager.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,5 +49,10 @@ public class MemberController {
 		this.memberService.deleteInBatch(List.of(UUID.fromString(uuid)));
 
 		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/")
+	public MemberDTO addMember(@RequestBody MemberPersistDTO memberPersistDTO) {
+		return this.memberService.addMember(memberPersistDTO);
 	}
 }
