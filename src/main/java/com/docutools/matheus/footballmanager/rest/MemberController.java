@@ -1,7 +1,8 @@
 package com.docutools.matheus.footballmanager.rest;
 
 import com.docutools.matheus.footballmanager.dto.MemberDTO;
-import com.docutools.matheus.footballmanager.dto.MemberPersistDTO;
+import com.docutools.matheus.footballmanager.dto.MemberAddDTO;
+import com.docutools.matheus.footballmanager.dto.MemberUpdateDTO;
 import com.docutools.matheus.footballmanager.exception.MemberNotFoundException;
 import com.docutools.matheus.footballmanager.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class MemberController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity deleteMember(@PathVariable("id") String uuid) {
 		/*
-		 to keep it simple, I transform it ot an list to be able to reused the other function and maintain the same logic
+		 to keep it simple, I transform it to a list to be able to reused the other function and maintain the same logic
 		 */
 		this.memberService.deleteInBatch(List.of(UUID.fromString(uuid)));
 
@@ -52,7 +53,12 @@ public class MemberController {
 	}
 
 	@PostMapping("/")
-	public MemberDTO addMember(@RequestBody MemberPersistDTO memberPersistDTO) {
-		return this.memberService.addMember(memberPersistDTO);
+	public MemberDTO addMember(@RequestBody MemberAddDTO memberAddDTO) {
+		return this.memberService.addMember(memberAddDTO);
+	}
+
+	@PutMapping("/")
+	public List<MemberDTO> updateMembers(@RequestBody List<MemberUpdateDTO> membersUpdateDTO) {
+		return this.memberService.updateMember(membersUpdateDTO);
 	}
 }

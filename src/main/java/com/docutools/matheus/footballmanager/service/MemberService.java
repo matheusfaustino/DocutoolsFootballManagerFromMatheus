@@ -1,7 +1,8 @@
 package com.docutools.matheus.footballmanager.service;
 
 import com.docutools.matheus.footballmanager.dto.MemberDTO;
-import com.docutools.matheus.footballmanager.dto.MemberPersistDTO;
+import com.docutools.matheus.footballmanager.dto.MemberAddDTO;
+import com.docutools.matheus.footballmanager.dto.MemberUpdateDTO;
 import com.docutools.matheus.footballmanager.entity.Member;
 import com.docutools.matheus.footballmanager.entity.Role;
 import com.docutools.matheus.footballmanager.exception.MemberNotFoundException;
@@ -26,6 +27,24 @@ public class MemberService {
 
 	@Autowired
 	private RoleRepository roleRepository;
+
+	/**
+	 * Use extracted method to throws exception on .steam()
+	 * @param uuid
+	 * @return
+	 */
+	private Member findMemberByUuid(UUID uuid) {
+		return this.membersRepository.findById(uuid).orElseThrow(MemberNotFoundException::new);
+	}
+
+	/**
+	 * Use extracted method to throws exception
+	 * @param id
+	 * @return
+	 */
+	private Role findRoleById(Integer id) {
+		return this.roleRepository.findById(id).orElseThrow(RoleNotFoundException::new);
+	}
 
 	/**
 	 * List all members from the team
@@ -58,6 +77,7 @@ public class MemberService {
 	 */
 	@Transactional
 	public void deleteInBatch(List<UUID> uuids) {
+		/* @todo go back here to use extracted method to throws exception on map stream */
 		/**
 		 * I do not used .stream() here because the IDE recommended using forEach without .stream
 		 */
@@ -73,15 +93,35 @@ public class MemberService {
 
 	/**
 	 * Validate data and persist in the database
-	 * @param memberPersistDTO data sent by the client (usually)
+	 * @param memberAddDTO data sent by the client (usually)
 	 * @return a version of member to return to the client
 	 */
-	public MemberDTO addMember(MemberPersistDTO memberPersistDTO) {
+	public MemberDTO addMember(MemberAddDTO memberAddDTO) {
+		Role role = this.roleRepository.findById(memberAddDTO.getRole().getId()).orElseThrow(RoleNotFoundException::new);
 		Member member = new Member();
-		Role role = this.roleRepository.findById(memberPersistDTO.getRole().getId()).orElseThrow(RoleNotFoundException::new);
-		member.setName(memberPersistDTO.getName());
+		member.setName(memberAddDTO.getName());
 		member.setRole(role);
 
 		return MemberDTO.convertToDto(this.membersRepository.saveAndFlush(member));
+	}
+
+	@Transactional
+	public List<MemberDTO> updateMember(List<MemberUpdateDTO> membersUpdateDTO) {
+		return membersUpdateDTO.stream()
+				/* convert all DTO to entity to update */
+				.map(updateDTO -> {
+					Member member = this.findMemberByUuid(updateDTO.getMemberId());
+					Role role = this.findRoleById(updateDTO.getRole().getId());
+
+					member.setRole(role);
+					member.setName(updateDTO.getName());
+
+					/* I am using save here to make sure that if an exception is thrown i can rollback the change of others entities */
+					this.membersRepository.save(member);
+
+					return member;
+				})
+				.map(MemberDTO::convertToDto)
+				.collect(Collectors.toList());
 	}
 }

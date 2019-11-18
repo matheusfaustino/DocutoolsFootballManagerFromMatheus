@@ -9,7 +9,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotNull;
 
 @Getter
-public class MemberPersistDTO {
+public class MemberAddDTO {
 	@NotNull(message = "You should provide a name for the member")
 	@Length(min = 3, max = 255)
 	private String name;
