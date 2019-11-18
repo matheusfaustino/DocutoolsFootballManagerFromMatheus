@@ -29,8 +29,8 @@ public class Member {
     @Column()
     private String name;
 
-    @Enumerated(EnumType.STRING)
-    private TeamRoles role;
+    @ManyToOne
+    private Role role;
 
     @Column(columnDefinition = "boolean default false")
     private Boolean deleted;

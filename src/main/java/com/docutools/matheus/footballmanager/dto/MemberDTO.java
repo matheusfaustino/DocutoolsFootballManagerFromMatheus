@@ -1,6 +1,7 @@
 package com.docutools.matheus.footballmanager.dto;
 
 import com.docutools.matheus.footballmanager.entity.Member;
+import com.docutools.matheus.footballmanager.entity.Role;
 import com.docutools.matheus.footballmanager.roles.TeamRoles;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,9 +14,9 @@ import java.util.UUID;
 public class MemberDTO {
 	private UUID memberId;
 	private String name;
-	private TeamRoles role;
+	private String role;
 
 	public static MemberDTO convertToDto(Member member) {
-		return new MemberDTO(member.getMemberId(), member.getName(), member.getRole());
+		return new MemberDTO(member.getMemberId(), member.getName(), member.getRole().getLabel());
 	}
 }
