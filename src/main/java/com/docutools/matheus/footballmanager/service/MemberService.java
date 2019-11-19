@@ -5,10 +5,13 @@ import com.docutools.matheus.footballmanager.dto.MemberAddDTO;
 import com.docutools.matheus.footballmanager.dto.MemberUpdateDTO;
 import com.docutools.matheus.footballmanager.entity.Member;
 import com.docutools.matheus.footballmanager.entity.Role;
-import com.docutools.matheus.footballmanager.exception.MemberNotFoundException;
-import com.docutools.matheus.footballmanager.exception.RoleNotFoundException;
+import com.docutools.matheus.footballmanager.exception.*;
 import com.docutools.matheus.footballmanager.repository.MemberRepository;
 import com.docutools.matheus.footballmanager.repository.RoleRepository;
+import com.docutools.matheus.footballmanager.roles.CoachRoles;
+import com.docutools.matheus.footballmanager.roles.MedicalRoles;
+import com.docutools.matheus.footballmanager.roles.TeamRoles;
+import com.docutools.matheus.footballmanager.validator.TeamConstraints;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,10 +31,13 @@ public class MemberService {
 	@Autowired
 	private RoleRepository roleRepository;
 
+	@Autowired
+	private TeamConstraints teamConstraints;
+
 	/**
 	 * Use extracted method to throws exception on .steam()
-	 * @param uuid
-	 * @return
+	 * @param uuid member's identification
+	 * @return member's object
 	 */
 	private Member findMemberByUuid(UUID uuid) {
 		return this.membersRepository.findById(uuid).orElseThrow(MemberNotFoundException::new);
@@ -39,8 +45,8 @@ public class MemberService {
 
 	/**
 	 * Use extracted method to throws exception
-	 * @param id
-	 * @return
+	 * @param id role's identification
+	 * @return role's object
 	 */
 	private Role findRoleById(Integer id) {
 		return this.roleRepository.findById(id).orElseThrow(RoleNotFoundException::new);
@@ -53,6 +59,7 @@ public class MemberService {
 	 * @return List of all members based on page and size
 	 */
 	public List<MemberDTO> listAllPaginated(int page, int size) {
+		/* @todo add orderby and role */
 		Page<Member> members = this.membersRepository.findAll(PageRequest.of(page, size));
 
 		return members.stream()
@@ -66,6 +73,7 @@ public class MemberService {
 	 * @return The member object or null
 	 */
 	public Optional<MemberDTO> find(UUID uuid) {
+		/* @todo make use of the exception */
 		Optional<Member> row = this.membersRepository.findById(uuid);
 
 		return row.map(MemberDTO::convertToDto);
@@ -97,6 +105,27 @@ public class MemberService {
 	 */
 	public MemberDTO addMember(MemberAddDTO memberAddDTO) {
 		Role role = this.roleRepository.findById(memberAddDTO.getRole().getId()).orElseThrow(RoleNotFoundException::new);
+		Role parentRole = role.getParentId() != null ? role.getParentId() : role;
+
+		/* check if the role is a variation of player (a really opinionated way of selection parent roles) */
+		boolean isPlayer = parentRole.getLabel().equalsIgnoreCase(TeamRoles.PLAYER.name());
+		if (isPlayer && !this.teamConstraints.canAddPlayer()) {
+			throw new MaximumPlayersReachedException();
+		}
+
+		boolean isHeadCoach = role.getLabel().equalsIgnoreCase(CoachRoles.HEAD_COACH.toString());
+		if (isHeadCoach && !this.teamConstraints.canAddHeadCoach()) {
+			throw new MaximumHeadCoachReachedException();
+		}
+
+		boolean isDoctor = role.getLabel().equalsIgnoreCase(MedicalRoles.DOCTORS.name());
+		if (isDoctor && !this.teamConstraints.canAddDoctor()) {
+			throw new MaximumDoctorReachedException();
+		}
+
+		/*
+		 * Creates member after all validation
+		 */
 		Member member = new Member();
 		member.setName(memberAddDTO.getName());
 		member.setRole(role);
@@ -104,6 +133,11 @@ public class MemberService {
 		return MemberDTO.convertToDto(this.membersRepository.saveAndFlush(member));
 	}
 
+	/**
+	 * Update members data
+	 * @param membersUpdateDTO list of members to be updated
+	 * @return the view object to the client
+	 */
 	@Transactional
 	public List<MemberDTO> updateMember(List<MemberUpdateDTO> membersUpdateDTO) {
 		return membersUpdateDTO.stream()
