@@ -98,32 +98,97 @@ public class TeamConstraints {
 		return countDoctor < this.maxDoctor;
 	}
 
+	/**
+	 * Validate new members as a list, I created it separated from the new member because the manipulation with more that two members is more complex.
+	 * So I tried to keep it simple and easy to maintain
+	 */
+	public void validateMembersAddition(List<Member> members) {
+		if (!this.canAddMorePlayers(members)) {
+			throw new MaximumPlayersReachedException();
+		}
 
+		if (!this.canAddMoreHeadCoach(members)) {
+			throw new MaximumHeadCoachReachedException();
+		}
 
-
-
-
-
-
-
-
-
+		if (!this.canAddMoreDoctor(members)) {
+			throw new MaximumDoctorReachedException();
+		}
+	}
 
 	/**
-	 * Helper function that encapsulate the validation logic for adding more players, check if can add one more player
-	 * Warning: it is not well prepared for parallel processing
-	 * @return if can or can't add more players
+	 * I think this is the most difficult validation in the project. Because It deals with members turning into players
+	 * and players that aren't players anymore.
+	 * I tried to separated well each iteration to be readable and be logical. I will be frank:
+	 * 		I think i could come up with something better with more time working with stream and thinking more functional.
+	 * @param members members sent by the client
+	 * @return if can or cannot add more players, considering all the members sent
 	 */
-//	public Boolean canUpdateMorePlayer(List<Member> members) {
-//		Role playerRole = this.roleUtils.findParentRole(TeamRoles.PLAYER);
-//		playerRole.getChildren()
-//				.stream()
-//				.map(Role::getMembers)
-//				.filter(member -> !members.contains(member) && )
-//		int countPlayerMembers = this.roleUtils.countAllMembersFromRole(playerRole);
+	private Boolean canAddMorePlayers(List<Member> members) {
+		Role playerRole = this.roleUtils.findParentRole(TeamRoles.PLAYER);
 
-//		return (countPlayerMembers + quantityPlayersToAdd) <= this.maxPlayerQuantity;
-//	}
+		/* get all uuids to be able to filter which players were sent in the streams */
+		List<UUID> membersSentUuid = members.stream()
+				.map(Member::getMemberId)
+				.collect(Collectors.toList());
 
+		/* get all members that are players right now */
+		List<Member> currentPlayerMembers = playerRole.getChildren().stream()
+				.flatMap(players -> players.getMembers().stream())
+				.collect(Collectors.toList());
 
+		/* get all members sent as players */
+		List<Member> membersPlayerSent = members.stream()
+				.filter(member -> member.getRole().getParentId().equals(playerRole))
+				.collect(Collectors.toList());
+
+		/* members that were players or are players yet. Use it to calculate the slots available */
+		List<Member> playersThatChangedRoleOrArePlayersYet = currentPlayerMembers.stream()
+				.filter(player -> membersSentUuid.contains(player.getMemberId()))
+				.collect(Collectors.toList());
+
+		/*
+		 Calculate the slots available based on the players that are not players more and the players that still players.
+		 For the last one, they will be recounted in the members sent as players
+		 */
+		int occupiedSlots = currentPlayerMembers.size() - playersThatChangedRoleOrArePlayersYet.size();
+
+		return (occupiedSlots + membersPlayerSent.size()) <= this.maxPlayerQuantity;
+	}
+
+	private Boolean canAddMoreHeadCoach(List<Member> members) {
+		Role headCoachRole = this.roleUtils.findChildRole(CoachRoles.HEAD_COACH.toString());
+
+		/* list the ids from members  */
+		List<UUID> uuidMembersSentHeadCoach = members.stream()
+				.filter(member -> member.getRole().equals(headCoachRole))
+				.map(Member::getMemberId)
+				.collect(Collectors.toList());
+
+		List<Member> coachesSentAsCoach = headCoachRole.getMembers().stream()
+				.filter(member -> uuidMembersSentHeadCoach.contains(member.getMemberId()))
+				.collect(Collectors.toList());
+
+		int occupiedSlots = headCoachRole.getMembers().size() - coachesSentAsCoach.size();
+
+		return (occupiedSlots + uuidMembersSentHeadCoach.size()) <= this.maxHeadCoach;
+	}
+
+	private Boolean canAddMoreDoctor(List<Member> members) {
+		Role doctorRole = this.roleUtils.findChildRole(MedicalRoles.DOCTORS.name());
+
+		/* list the ids from members  */
+		List<UUID> uuidMembersSentDoctor = members.stream()
+				.filter(member -> member.getRole().equals(doctorRole))
+				.map(Member::getMemberId)
+				.collect(Collectors.toList());
+
+		List<Member> doctorSentAsCoach = doctorRole.getMembers().stream()
+				.filter(member -> uuidMembersSentDoctor.contains(member.getMemberId()))
+				.collect(Collectors.toList());
+
+		int occupiedSlots = doctorRole.getMembers().size() - doctorSentAsCoach.size();
+
+		return (occupiedSlots + uuidMembersSentDoctor.size()) <= this.maxDoctor;
+	}
 }

@@ -105,30 +105,15 @@ public class MemberService {
 	 */
 	public MemberDTO addMember(MemberAddDTO memberAddDTO) {
 		Role role = this.roleRepository.findById(memberAddDTO.getRole().getId()).orElseThrow(RoleNotFoundException::new);
-		Role parentRole = role.getParentId() != null ? role.getParentId() : role;
-
-		/* check if the role is a variation of player (a really opinionated way of selection parent roles) */
-		boolean isPlayer = parentRole.getLabel().equalsIgnoreCase(TeamRoles.PLAYER.name());
-		if (isPlayer && !this.teamConstraints.canAddPlayer()) {
-			throw new MaximumPlayersReachedException();
-		}
-
-		boolean isHeadCoach = role.getLabel().equalsIgnoreCase(CoachRoles.HEAD_COACH.toString());
-		if (isHeadCoach && !this.teamConstraints.canAddHeadCoach()) {
-			throw new MaximumHeadCoachReachedException();
-		}
-
-		boolean isDoctor = role.getLabel().equalsIgnoreCase(MedicalRoles.DOCTORS.name());
-		if (isDoctor && !this.teamConstraints.canAddDoctor()) {
-			throw new MaximumDoctorReachedException();
-		}
 
 		/*
-		 * Creates member after all validation
+		 I tried to convert back the DTO to entity, but I could not achieve without breaking SOLID principles
 		 */
 		Member member = new Member();
 		member.setName(memberAddDTO.getName());
 		member.setRole(role);
+
+		this.teamConstraints.validateMemberAddition(member);
 
 		return MemberDTO.convertToDto(this.membersRepository.saveAndFlush(member));
 	}
@@ -140,20 +125,35 @@ public class MemberService {
 	 */
 	@Transactional
 	public List<MemberDTO> updateMember(List<MemberUpdateDTO> membersUpdateDTO) {
-		return membersUpdateDTO.stream()
-				/* convert all DTO to entity to update */
-				.map(updateDTO -> {
-					Member member = this.findMemberByUuid(updateDTO.getMemberId());
-					Role role = this.findRoleById(updateDTO.getRole().getId());
+		/*
+		 If there is tuples in Java 8 will use it to keep track of both object, but without I will already alter the object to run the validation from the entity
+		 This is implementation is not pure functional, because there are side effects such as Exceptions and object modification (improve it to be pure functional)
+		 */
+		List<Member> rowsMembers = membersUpdateDTO.stream()
+				.map(dto -> {
+					Member member = this.findMemberByUuid(dto.getMemberId());
+					Role role = this.findRoleById(dto.getRole().getId());
 
 					member.setRole(role);
-					member.setName(updateDTO.getName());
+					member.setName(dto.getName());
+					if (dto.getFirstTeam().isPresent()) {
+						member.setFirstTeam(dto.getFirstTeam().get());
+					}
+					if (dto.getBenched().isPresent()) {
+						member.setBenched(dto.getBenched().get());
+					}
 
 					/* I am using save here to make sure that if an exception is thrown i can rollback the change of others entities */
 					this.membersRepository.save(member);
 
 					return member;
 				})
+				.collect(Collectors.toList());
+
+		/* once the data validated, I update the data and persist */
+		this.teamConstraints.validateMembersAddition(rowsMembers);
+
+		return rowsMembers.stream()
 				.map(MemberDTO::convertToDto)
 				.collect(Collectors.toList());
 	}
