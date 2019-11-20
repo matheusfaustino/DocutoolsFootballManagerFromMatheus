@@ -3,9 +3,7 @@ package com.docutools.matheus.footballmanager.validator;
 import com.docutools.matheus.footballmanager.FootballManagerProperties;
 import com.docutools.matheus.footballmanager.entity.Member;
 import com.docutools.matheus.footballmanager.entity.Role;
-import com.docutools.matheus.footballmanager.exception.MaximumDoctorReachedException;
-import com.docutools.matheus.footballmanager.exception.MaximumHeadCoachReachedException;
-import com.docutools.matheus.footballmanager.exception.MaximumPlayersReachedException;
+import com.docutools.matheus.footballmanager.exception.*;
 import com.docutools.matheus.footballmanager.role.CoachRoles;
 import com.docutools.matheus.footballmanager.role.MedicalRoles;
 import com.docutools.matheus.footballmanager.role.TeamRoles;
@@ -41,6 +39,14 @@ public class TeamConstraints {
 		boolean isPlayer = parentRole.getLabel().equalsIgnoreCase(TeamRoles.PLAYER.name());
 		if (isPlayer && !this.canAddPlayer()) {
 			throw new MaximumPlayersReachedException();
+		}
+
+		if (isPlayer && member.getFirstTeam() && !this.canBeAtFirstTeam()) {
+			throw new MaximumPlayersFirstTeamReachedException();
+		}
+
+		if (isPlayer && member.getBenched() && !this.canBeAtSubstitute()) {
+			throw new MaximumPlayersSubstituteReachedException();
 		}
 
 		/* it's string because this enum has space between words */
@@ -90,6 +96,26 @@ public class TeamConstraints {
 		return countDoctor < this.properties.getMaxDoctor();
 	}
 
+	private Boolean canBeAtSubstitute() {
+		Role playerRole = this.roleUtils.findParentRole(TeamRoles.PLAYER);
+		List<Member> playersMemberFirstTeam = playerRole.getChildren().stream()
+				.flatMap(member -> member.getMembers().stream())
+				.filter(Member::getBenched)
+				.collect(Collectors.toList());
+
+		return playersMemberFirstTeam.size() < this.properties.getMaxPlayerSubstitutes();
+	}
+
+	private Boolean canBeAtFirstTeam() {
+		Role playerRole = this.roleUtils.findParentRole(TeamRoles.PLAYER);
+		List<Member> playersMemberFirstTeam = playerRole.getChildren().stream()
+				.flatMap(member -> member.getMembers().stream())
+				.filter(Member::getFirstTeam)
+				.collect(Collectors.toList());
+
+		return playersMemberFirstTeam.size() < this.properties.getMaxPlayerFirstTeam();
+	}
+
 	/**
 	 * Validate new members as a list, I created it separated from the new member because the manipulation with more that two members is more complex.
 	 * So I tried to keep it simple and easy to maintain
@@ -97,6 +123,14 @@ public class TeamConstraints {
 	public void validateMembersAddition(List<Member> members) {
 		if (!this.canAddMorePlayers(members)) {
 			throw new MaximumPlayersReachedException();
+		}
+
+		if (!this.canAddMorePlayersOnFirstTeam(members)) {
+			throw new MaximumPlayersFirstTeamReachedException();
+		}
+
+		if (!this.canAddMorePlayersOnSubstituteTeam(members)) {
+			throw new MaximumPlayersSubstituteReachedException();
 		}
 
 		Role headCoachRole = this.roleUtils.findChildRole(CoachRoles.HEAD_COACH.toString());
@@ -133,7 +167,8 @@ public class TeamConstraints {
 
 		/* get all members sent as players */
 		List<Member> membersPlayerSent = members.stream()
-				.filter(member -> member.getRole().getParentId().equals(playerRole))
+				/* it can without it give null pointer */
+				.filter(member -> (member.getRole().getParentId() != null ? member.getRole().getParentId() : member.getRole()).equals(playerRole))
 				.collect(Collectors.toList());
 
 		/* members that were players or are players yet. Use it to calculate the slots available */
@@ -171,5 +206,51 @@ public class TeamConstraints {
 		int occupiedSlots = role.getMembers().size() - roleSentAsRole.size();
 
 		return (occupiedSlots + uuidMembersSentRole.size()) <= maximumQuantity;
+	}
+
+	private Boolean canAddMorePlayersOnFirstTeam(List<Member> members) {
+		Role playerRole = this.roleUtils.findParentRole(TeamRoles.PLAYER);
+
+		List<UUID> membersSentUuidFirstTeam = members.stream()
+				.filter(member -> playerRole.getChildren().contains(member.getRole()))
+				.filter(Member::getFirstTeam)
+				.map(Member::getMemberId)
+				.collect(Collectors.toList());
+
+		List<Member> currentPlayerMembersFirstTeam = playerRole.getChildren().stream()
+				.flatMap(players -> players.getMembers().stream())
+				.filter(Member::getFirstTeam)
+				.collect(Collectors.toList());
+
+		List<Member> memberFirstTeamInPlayersSent = currentPlayerMembersFirstTeam.stream()
+				.filter(player -> membersSentUuidFirstTeam.contains(player.getMemberId()))
+				.collect(Collectors.toList());
+
+		int occupiedSlotsFirstTeam = currentPlayerMembersFirstTeam.size() - memberFirstTeamInPlayersSent.size();
+
+		return (occupiedSlotsFirstTeam + membersSentUuidFirstTeam.size()) <= this.properties.getMaxPlayerFirstTeam();
+	}
+
+	private Boolean canAddMorePlayersOnSubstituteTeam(List<Member> members) {
+		Role playerRole = this.roleUtils.findParentRole(TeamRoles.PLAYER);
+
+		List<UUID> membersSentUuidSubstituteTeam = members.stream()
+				.filter(member -> playerRole.getChildren().contains(member.getRole()))
+				.filter(Member::getBenched)
+				.map(Member::getMemberId)
+				.collect(Collectors.toList());
+
+		List<Member> currentPlayerMembersSubstituteTeam = playerRole.getChildren().stream()
+				.flatMap(players -> players.getMembers().stream())
+				.filter(Member::getBenched)
+				.collect(Collectors.toList());
+
+		List<Member> memberSubstituteTeamInPlayersSent = currentPlayerMembersSubstituteTeam.stream()
+				.filter(player -> membersSentUuidSubstituteTeam.contains(player.getMemberId()))
+				.collect(Collectors.toList());
+
+		int occupiedSlotsSubstituteTeam = currentPlayerMembersSubstituteTeam.size() - memberSubstituteTeamInPlayersSent.size();
+
+		return (occupiedSlotsSubstituteTeam + membersSentUuidSubstituteTeam.size()) <= this.properties.getMaxPlayerSubstitutes();
 	}
 }

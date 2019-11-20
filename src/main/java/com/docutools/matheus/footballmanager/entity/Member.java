@@ -51,9 +51,4 @@ public class Member {
 
 	@Column(columnDefinition = "boolean default false")
 	private Boolean benched = false;
-
-	@AssertTrue(message = "You just can pass the firstTeam and benched field if member is a player")
-	public Boolean validIfItIsPlayerWhenPassingFirstAndBenchedFlag() {
-		return (!this.firstTeam && !this.benched) || this.role.getParentId().getLabel().equalsIgnoreCase(TeamRoles.PLAYER.name());
-	}
 }

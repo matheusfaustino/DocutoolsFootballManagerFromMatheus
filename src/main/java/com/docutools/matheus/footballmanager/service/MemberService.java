@@ -14,7 +14,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.SmartValidator;
 
+import javax.xml.validation.Validator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,6 +33,9 @@ public class MemberService {
 
 	@Autowired
 	private TeamConstraints teamConstraints;
+
+	@Autowired
+	private SmartValidator validator;
 
 	/**
 	 * Use extracted method to throws exception on .steam()
@@ -109,6 +115,8 @@ public class MemberService {
 		Member member = new Member();
 		member.setName(memberAddDTO.getName());
 		member.setRole(role);
+		member.setBenched(memberAddDTO.getBenched().orElse(false));
+		member.setFirstTeam(memberAddDTO.getFirstTeam().orElse(false));
 
 		this.teamConstraints.validateMemberAddition(member);
 
@@ -133,12 +141,8 @@ public class MemberService {
 
 					member.setRole(role);
 					member.setName(dto.getName());
-					if (dto.getFirstTeam().isPresent()) {
-						member.setFirstTeam(dto.getFirstTeam().get());
-					}
-					if (dto.getBenched().isPresent()) {
-						member.setBenched(dto.getBenched().get());
-					}
+					member.setBenched(dto.getBenched().orElse(false));
+					member.setFirstTeam(dto.getFirstTeam().orElse(false));
 
 					/* I am using save here to make sure that if an exception is thrown i can rollback the change of others entities */
 					this.membersRepository.save(member);
