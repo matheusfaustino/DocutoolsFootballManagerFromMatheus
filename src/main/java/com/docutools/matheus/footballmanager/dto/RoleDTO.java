@@ -1,6 +1,8 @@
 package com.docutools.matheus.footballmanager.dto;
 
 import com.docutools.matheus.footballmanager.entity.Role;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -8,7 +10,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
 @Getter
-@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class RoleDTO {
 	@Positive
 	@NotNull
@@ -17,5 +19,9 @@ public class RoleDTO {
 
 	public RoleDTO(Integer id) {
 		this.id = id;
+	}
+
+	public static RoleDTO convertToDTO(Role role) {
+		return new RoleDTO(role.getId(), role.getLabel());
 	}
 }
