@@ -97,7 +97,7 @@ public class MemberService {
 					  I tried using two maps, forEach and etc, but none happened the way I would like to
 					 */
 					Member member = this.findMemberByUuid(uuid);
-					this.membersRepository.delete(member);
+					this.membersRepository.delete(uuid);
 				});
 	}
 

@@ -4,7 +4,7 @@ public enum PlayerRoles {
     FORWARDS("FORWARDS"),
 	MIDDLE_FIELDERS("MIDDLE FIELDERS"),
 	DEFENDERS("DEFENDERS"),
-	GOALKEEERS("GOALKEEERS");
+	GOALKEEPER("GOALKEEPER");
 
 	private final String text;
 
