@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("members")
@@ -46,8 +49,9 @@ public class MemberController {
 	public ResponseEntity deleteMember(@PathVariable("id") String uuid) {
 		/*
 		 to keep it simple, I transform it to a list to be able to reused the other function and maintain the same logic
+		 could be list.of if using java9+
 		 */
-		this.memberService.deleteInBatch(List.of(UUID.fromString(uuid)));
+		this.memberService.deleteInBatch(Stream.of(UUID.fromString(uuid)).collect(Collectors.toList()));
 
 		return ResponseEntity.ok().build();
 	}
