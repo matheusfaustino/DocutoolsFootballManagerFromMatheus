@@ -1,5 +1,6 @@
 package com.docutools.matheus.footballmanager.validator;
 
+import com.docutools.matheus.footballmanager.FootballManagerProperties;
 import com.docutools.matheus.footballmanager.entity.Member;
 import com.docutools.matheus.footballmanager.entity.Role;
 import com.docutools.matheus.footballmanager.exception.MaximumDoctorReachedException;
@@ -10,11 +11,8 @@ import com.docutools.matheus.footballmanager.roles.MedicalRoles;
 import com.docutools.matheus.footballmanager.roles.TeamRoles;
 import com.docutools.matheus.footballmanager.utils.RoleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,17 +23,11 @@ import java.util.stream.Collectors;
  */
 @Service
 public class TeamConstraints {
-	@Value("${application.constraints.max_player}")
-	private int maxPlayerQuantity;
-
-	@Value("${application.constraints.max_head_coach}")
-	private int maxHeadCoach;
-
-	@Value("${application.constraints.max_doctor}")
-	private int maxDoctor;
-
 	@Autowired
 	private RoleUtils roleUtils;
+
+	@Autowired
+	private FootballManagerProperties properties;
 
 	/**
 	 * Encapsulate the validation of a new member into the team team
@@ -73,7 +65,7 @@ public class TeamConstraints {
 		Role playerRole = this.roleUtils.findParentRole(TeamRoles.PLAYER);
 		long countPlayerMembers = this.roleUtils.countAllMembersFromRole(playerRole);
 
-		return countPlayerMembers < this.maxPlayerQuantity;
+		return countPlayerMembers < this.properties.getMaxPlayer();
 	}
 
 	/**
@@ -84,7 +76,7 @@ public class TeamConstraints {
 		Role headCoachRole = this.roleUtils.findChildRole(CoachRoles.HEAD_COACH.toString());
 		int countHeadCoach = headCoachRole.getMembers().size();
 
-		return countHeadCoach < this.maxHeadCoach;
+		return countHeadCoach < this.properties.getMaxHeadCoach();
 	}
 
 	/**
@@ -95,7 +87,7 @@ public class TeamConstraints {
 		Role doctorRole = this.roleUtils.findChildRole(MedicalRoles.DOCTORS.name());
 		int countDoctor = doctorRole.getMembers().size();
 
-		return countDoctor < this.maxDoctor;
+		return countDoctor < this.properties.getMaxDoctor();
 	}
 
 	/**
@@ -153,7 +145,7 @@ public class TeamConstraints {
 		 */
 		int occupiedSlots = currentPlayerMembers.size() - playersThatChangedRoleOrArePlayersYet.size();
 
-		return (occupiedSlots + membersPlayerSent.size()) <= this.maxPlayerQuantity;
+		return (occupiedSlots + membersPlayerSent.size()) <= this.properties.getMaxPlayer();
 	}
 
 	private Boolean canAddMoreHeadCoach(List<Member> members) {
@@ -171,7 +163,7 @@ public class TeamConstraints {
 
 		int occupiedSlots = headCoachRole.getMembers().size() - coachesSentAsCoach.size();
 
-		return (occupiedSlots + uuidMembersSentHeadCoach.size()) <= this.maxHeadCoach;
+		return (occupiedSlots + uuidMembersSentHeadCoach.size()) <= this.properties.getMaxHeadCoach();
 	}
 
 	private Boolean canAddMoreDoctor(List<Member> members) {
@@ -189,6 +181,6 @@ public class TeamConstraints {
 
 		int occupiedSlots = doctorRole.getMembers().size() - doctorSentAsCoach.size();
 
-		return (occupiedSlots + uuidMembersSentDoctor.size()) <= this.maxDoctor;
+		return (occupiedSlots + uuidMembersSentDoctor.size()) <= this.properties.getMaxDoctor();
 	}
 }
