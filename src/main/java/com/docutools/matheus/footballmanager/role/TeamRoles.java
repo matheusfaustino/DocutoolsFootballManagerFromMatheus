@@ -1,4 +1,4 @@
-package com.docutools.matheus.footballmanager.roles;
+package com.docutools.matheus.footballmanager.role;
 
 public enum TeamRoles {
     COACH, PLAYER, MEDICAL

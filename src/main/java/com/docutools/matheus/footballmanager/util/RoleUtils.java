@@ -1,9 +1,9 @@
-package com.docutools.matheus.footballmanager.utils;
+package com.docutools.matheus.footballmanager.util;
 
 import com.docutools.matheus.footballmanager.entity.Role;
 import com.docutools.matheus.footballmanager.exception.RoleNotFoundException;
 import com.docutools.matheus.footballmanager.repository.RoleRepository;
-import com.docutools.matheus.footballmanager.roles.*;
+import com.docutools.matheus.footballmanager.role.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

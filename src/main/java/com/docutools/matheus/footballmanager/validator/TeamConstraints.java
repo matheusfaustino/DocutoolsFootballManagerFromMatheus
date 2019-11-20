@@ -6,10 +6,10 @@ import com.docutools.matheus.footballmanager.entity.Role;
 import com.docutools.matheus.footballmanager.exception.MaximumDoctorReachedException;
 import com.docutools.matheus.footballmanager.exception.MaximumHeadCoachReachedException;
 import com.docutools.matheus.footballmanager.exception.MaximumPlayersReachedException;
-import com.docutools.matheus.footballmanager.roles.CoachRoles;
-import com.docutools.matheus.footballmanager.roles.MedicalRoles;
-import com.docutools.matheus.footballmanager.roles.TeamRoles;
-import com.docutools.matheus.footballmanager.utils.RoleUtils;
+import com.docutools.matheus.footballmanager.role.CoachRoles;
+import com.docutools.matheus.footballmanager.role.MedicalRoles;
+import com.docutools.matheus.footballmanager.role.TeamRoles;
+import com.docutools.matheus.footballmanager.util.RoleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

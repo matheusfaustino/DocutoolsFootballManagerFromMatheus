@@ -1,4 +1,4 @@
-package com.docutools.matheus.footballmanager.rest;
+package com.docutools.matheus.footballmanager.controller;
 
 import com.docutools.matheus.footballmanager.dto.MemberDTO;
 import com.docutools.matheus.footballmanager.dto.MemberAddDTO;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

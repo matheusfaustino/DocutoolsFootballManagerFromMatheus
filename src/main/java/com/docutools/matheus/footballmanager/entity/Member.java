@@ -1,6 +1,6 @@
 package com.docutools.matheus.footballmanager.entity;
 
-import com.docutools.matheus.footballmanager.roles.TeamRoles;
+import com.docutools.matheus.footballmanager.role.TeamRoles;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

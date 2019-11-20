@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -20,6 +21,6 @@ public class MemberAddDTO {
 	@NotNull(message = "You should pass a valid role")
 	private RoleDTO role;
 
-	private Boolean firstTeam;
-	private Boolean benched;
+	private Optional<Boolean> firstTeam;
+	private Optional<Boolean> benched;
 }
