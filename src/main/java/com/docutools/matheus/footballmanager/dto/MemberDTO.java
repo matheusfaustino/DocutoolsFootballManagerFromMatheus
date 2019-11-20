@@ -17,8 +17,10 @@ public class MemberDTO {
 	private UUID memberId;
 	private String name;
 	private String role;
+	private Boolean firstTeam;
+	private Boolean benched;
 
 	public static MemberDTO convertToDto(Member member) {
-		return new MemberDTO(member.getMemberId(), member.getName(), member.getRole().getLabel());
+		return new MemberDTO(member.getMemberId(), member.getName(), member.getRole().getLabel(), member.getFirstTeam(), member.getBenched());
 	}
 }

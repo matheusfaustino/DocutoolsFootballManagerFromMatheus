@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.ScriptAssert;
 
 import javax.persistence.*;
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
@@ -44,4 +45,15 @@ public class Member {
 	 */
 	@Column(columnDefinition = "boolean default false")
     private Boolean deleted = false;
+
+	@Column(columnDefinition = "boolean default false")
+	private Boolean firstTeam = false;
+
+	@Column(columnDefinition = "boolean default false")
+	private Boolean benched = false;
+
+	@AssertTrue(message = "You just can pass the firstTeam and benched field if member is a player")
+	public Boolean validIfItIsPlayerWhenPassingFirstAndBenchedFlag() {
+		return (!this.firstTeam && !this.benched) || this.role.getParentId().getLabel().equalsIgnoreCase(TeamRoles.PLAYER.name());
+	}
 }
