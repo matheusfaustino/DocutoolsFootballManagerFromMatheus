@@ -99,11 +99,13 @@ public class TeamConstraints {
 			throw new MaximumPlayersReachedException();
 		}
 
-		if (!this.canAddMoreHeadCoach(members)) {
+		Role headCoachRole = this.roleUtils.findChildRole(CoachRoles.HEAD_COACH.toString());
+		if (!this.canAddMoreMemberToRoleChild(headCoachRole, members, this.properties.getMaxHeadCoach())) {
 			throw new MaximumHeadCoachReachedException();
 		}
 
-		if (!this.canAddMoreDoctor(members)) {
+		Role doctorRole = this.roleUtils.findChildRole(MedicalRoles.DOCTORS.name());
+		if (!this.canAddMoreMemberToRoleChild(doctorRole, members, this.properties.getMaxDoctor())) {
 			throw new MaximumDoctorReachedException();
 		}
 	}
@@ -148,39 +150,26 @@ public class TeamConstraints {
 		return (occupiedSlots + membersPlayerSent.size()) <= this.properties.getMaxPlayer();
 	}
 
-	private Boolean canAddMoreHeadCoach(List<Member> members) {
-		Role headCoachRole = this.roleUtils.findChildRole(CoachRoles.HEAD_COACH.toString());
-
+	/**
+	 * Extracted logic from children role validation
+	 * @param members Members sent by client
+	 * @param role Role to check against
+	 * @param maximumQuantity maximum quantity allowed from that role
+	 * @return If can add more member to that role
+	 */
+	private Boolean canAddMoreMemberToRoleChild(Role role, List<Member> members, int maximumQuantity) {
 		/* list the ids from members  */
-		List<UUID> uuidMembersSentHeadCoach = members.stream()
-				.filter(member -> member.getRole().equals(headCoachRole))
+		List<UUID> uuidMembersSentRole = members.stream()
+				.filter(member -> member.getRole().equals(role))
 				.map(Member::getMemberId)
 				.collect(Collectors.toList());
 
-		List<Member> coachesSentAsCoach = headCoachRole.getMembers().stream()
-				.filter(member -> uuidMembersSentHeadCoach.contains(member.getMemberId()))
+		List<Member> roleSentAsRole = role.getMembers().stream()
+				.filter(member -> uuidMembersSentRole.contains(member.getMemberId()))
 				.collect(Collectors.toList());
 
-		int occupiedSlots = headCoachRole.getMembers().size() - coachesSentAsCoach.size();
+		int occupiedSlots = role.getMembers().size() - roleSentAsRole.size();
 
-		return (occupiedSlots + uuidMembersSentHeadCoach.size()) <= this.properties.getMaxHeadCoach();
-	}
-
-	private Boolean canAddMoreDoctor(List<Member> members) {
-		Role doctorRole = this.roleUtils.findChildRole(MedicalRoles.DOCTORS.name());
-
-		/* list the ids from members  */
-		List<UUID> uuidMembersSentDoctor = members.stream()
-				.filter(member -> member.getRole().equals(doctorRole))
-				.map(Member::getMemberId)
-				.collect(Collectors.toList());
-
-		List<Member> doctorSentAsCoach = doctorRole.getMembers().stream()
-				.filter(member -> uuidMembersSentDoctor.contains(member.getMemberId()))
-				.collect(Collectors.toList());
-
-		int occupiedSlots = doctorRole.getMembers().size() - doctorSentAsCoach.size();
-
-		return (occupiedSlots + uuidMembersSentDoctor.size()) <= this.properties.getMaxDoctor();
+		return (occupiedSlots + uuidMembersSentRole.size()) <= maximumQuantity;
 	}
 }
