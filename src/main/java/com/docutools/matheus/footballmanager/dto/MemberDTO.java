@@ -1,6 +1,7 @@
 package com.docutools.matheus.footballmanager.dto;
 
 import com.docutools.matheus.footballmanager.entity.Member;
+import com.docutools.matheus.footballmanager.entity.Role;
 import com.docutools.matheus.footballmanager.role.TeamRoles;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
@@ -28,7 +29,8 @@ public class MemberDTO {
 	private Optional<Boolean> benched;
 
 	public static MemberDTO convertToDto(Member member) {
-		boolean isPlayer = member.getRole().getParentId().getLabel().equalsIgnoreCase(TeamRoles.PLAYER.name());
+		Role parent = member.getRole().getParentId() != null ? member.getRole().getParentId() : member.getRole();
+		boolean isPlayer = parent.getLabel().equalsIgnoreCase(TeamRoles.PLAYER.name());
 		if (isPlayer) {
 			return new MemberDTO(member.getMemberId(), member.getName(), member.getRole().getLabel(), Optional.of(member.getFirstTeam()), Optional.of(member.getBenched()));
 		} else {

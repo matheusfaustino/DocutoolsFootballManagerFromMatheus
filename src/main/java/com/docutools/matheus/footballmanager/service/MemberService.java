@@ -57,6 +57,19 @@ public class MemberService {
 	}
 
 	/**
+	 * Use extracted method to throws exception
+	 * @param role object to validate
+	 * @return return object if its a specialized version
+	 */
+	private Role validateRole(Role role) {
+		if (role.getParentId() == null) {
+			throw new RoleNotValidException();
+		}
+
+		return role;
+	}
+
+	/**
 	 * List all members from the team
 	 * @param page number of the page wanted
 	 * @param size the maximum size of the data
@@ -143,6 +156,7 @@ public class MemberService {
 				.map(dto -> {
 					Member member = this.findMemberByUuid(dto.getMemberId());
 					Role role = this.findRoleById(dto.getRole().getId());
+					this.validateRole(role);
 
 					member.setRole(role);
 					member.setName(dto.getName());
