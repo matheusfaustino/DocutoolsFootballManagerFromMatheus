@@ -38,7 +38,7 @@ public class MemberController {
 
 	@ApiOperation("Get specific members. Id comma-separated is accept")
 	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<MemberDTO> fetchMember(@ApiParam(name = "id", value = "Comma-separated uuid") @PathVariable("id") List<String> uuids) {
+	public List<MemberDTO> fetchMember(@ApiParam(name = "id", value = "Comma-separated uuid", required = true) @PathVariable("id") List<String> uuids) {
 		return uuids.stream().map(uuid -> this.memberService.find(UUID.fromString(uuid))).collect(Collectors.toList());
 	}
 
