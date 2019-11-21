@@ -1,5 +1,7 @@
 package com.docutools.matheus.footballmanager.dto;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Optional;
 import java.util.UUID;
 
+@ApiModel
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemberUpdateDTO {
@@ -19,9 +22,13 @@ public class MemberUpdateDTO {
 	@Length(min = 3, max = 255)
 	private String name;
 
+	@ApiModelProperty(dataType = "java.lang.Integer")
 	@NotNull(message = "You should pass a valid role")
 	private RoleDTO role;
 
+	@ApiModelProperty(dataType = "java.lang.Boolean")
 	private Optional<Boolean> firstTeam;
+
+	@ApiModelProperty(dataType = "java.lang.Boolean")
 	private Optional<Boolean> benched;
 }

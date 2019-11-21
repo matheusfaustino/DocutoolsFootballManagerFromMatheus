@@ -3,6 +3,7 @@ package com.docutools.matheus.footballmanager.dto;
 import com.docutools.matheus.footballmanager.entity.Member;
 import com.docutools.matheus.footballmanager.role.TeamRoles;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.Getter;
 import java.util.Optional;
 import java.util.UUID;
 
+@ApiModel
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemberDTO {
@@ -18,10 +20,10 @@ public class MemberDTO {
 	private String name;
 	private String role;
 
-	@ApiModelProperty(dataType = "boolean", required = false)
+	@ApiModelProperty(dataType = "java.lang.Boolean")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Optional<Boolean> firstTeam;
-	@ApiModelProperty(dataType = "boolean", required = false)
+	@ApiModelProperty(dataType = "java.lang.Boolean")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Optional<Boolean> benched;
 
