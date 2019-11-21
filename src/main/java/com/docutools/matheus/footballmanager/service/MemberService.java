@@ -8,6 +8,7 @@ import com.docutools.matheus.footballmanager.entity.Role;
 import com.docutools.matheus.footballmanager.exception.*;
 import com.docutools.matheus.footballmanager.repository.MemberRepository;
 import com.docutools.matheus.footballmanager.repository.RoleRepository;
+import com.docutools.matheus.footballmanager.role.TeamRoles;
 import com.docutools.matheus.footballmanager.validator.TeamConstraints;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -70,7 +71,7 @@ public class MemberService {
 	}
 
 	/**
-	 * Retrieves information from a single player
+	 * Retrieves information from a single player, if uuid is not found, throws an exception
 	 * @param uuid member's identification
 	 * @return The member object or null
 	 */
@@ -106,15 +107,21 @@ public class MemberService {
 	 */
 	public MemberDTO addMember(MemberAddDTO memberAddDTO) {
 		Role role = this.roleRepository.findById(memberAddDTO.getRole().getId()).orElseThrow(RoleNotFoundException::new);
+		Role roleParent = role.getParentId();
 
-		/*
-		 I tried to convert back the DTO to entity, but I could not achieve without breaking SOLID principles
-		 */
 		Member member = new Member();
 		member.setName(memberAddDTO.getName());
 		member.setRole(role);
 		member.setBenched(memberAddDTO.getBenched().orElse(false));
 		member.setFirstTeam(memberAddDTO.getFirstTeam().orElse(false));
+
+		/* just allow players' member to pass benched or first team */
+		if (roleParent != null
+				&& !roleParent.getLabel().equalsIgnoreCase(TeamRoles.PLAYER.name())
+				&& (memberAddDTO.getBenched().isPresent() || memberAddDTO.getFirstTeam().isPresent())
+		) {
+			throw new FirstTeamAndBenchedOptionsNotAllowedException();
+		}
 
 		this.teamConstraints.validateMemberAddition(member);
 

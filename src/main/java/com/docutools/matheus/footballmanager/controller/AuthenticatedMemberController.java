@@ -37,6 +37,7 @@ public class AuthenticatedMemberController {
 	@ApiOperation("Get specific members. Id comma-separated is accept")
 	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<MemberDTO> fetchMember(@ApiParam(name = "id", value = "Comma-separated uuid") @PathVariable("id") List<String> uuids) {
+		/* I used this method because it throws exception if id not found */
 		return uuids.stream().map(uuid -> this.memberService.find(UUID.fromString(uuid))).collect(Collectors.toList());
 	}
 
