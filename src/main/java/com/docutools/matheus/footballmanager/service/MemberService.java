@@ -75,11 +75,10 @@ public class MemberService {
 	 * @param uuid member's identification
 	 * @return The member object or null
 	 */
-	public Optional<MemberDTO> find(UUID uuid) {
-		/* @todo make use of the exception */
-		Optional<Member> row = this.membersRepository.findById(uuid);
+	public MemberDTO find(UUID uuid) {
+		Member row = this.findMemberByUuid(uuid);
 
-		return row.map(MemberDTO::convertToDto);
+		return MemberDTO.convertToDto(row);
 	}
 
 	/**

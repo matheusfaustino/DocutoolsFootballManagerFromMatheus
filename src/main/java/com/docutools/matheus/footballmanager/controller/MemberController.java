@@ -7,6 +7,7 @@ import com.docutools.matheus.footballmanager.exception.MemberNotFoundException;
 import com.docutools.matheus.footballmanager.service.MemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,12 +36,10 @@ public class MemberController {
 		return this.memberService.listAllPaginated(page, size);
 	}
 
-	@ApiOperation("Get specific member")
+	@ApiOperation("Get specific members. Id comma-separated is accept")
 	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public MemberDTO fetchMember(@PathVariable("id") String uuid) {
-		Optional<MemberDTO> member = this.memberService.find(UUID.fromString(uuid));
-
-		return member.orElseThrow(MemberNotFoundException::new);
+	public List<MemberDTO> fetchMember(@ApiParam(name = "id", value = "Comma-separated uuid") @PathVariable("id") List<String> uuids) {
+		return uuids.stream().map(uuid -> this.memberService.find(UUID.fromString(uuid))).collect(Collectors.toList());
 	}
 
 	@ApiOperation("Bulk delete multiple team members")
