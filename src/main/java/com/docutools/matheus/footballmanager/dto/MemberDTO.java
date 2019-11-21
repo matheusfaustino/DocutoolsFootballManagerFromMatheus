@@ -19,7 +19,7 @@ import java.util.UUID;
 public class MemberDTO {
 	private UUID memberId;
 	private String name;
-	private String role;
+	private RoleDTO role;
 
 	@ApiModelProperty(dataType = "java.lang.Boolean")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
@@ -32,9 +32,9 @@ public class MemberDTO {
 		Role parent = member.getRole().getParentId() != null ? member.getRole().getParentId() : member.getRole();
 		boolean isPlayer = parent.getLabel().equalsIgnoreCase(TeamRoles.PLAYER.name());
 		if (isPlayer) {
-			return new MemberDTO(member.getMemberId(), member.getName(), member.getRole().getLabel(), Optional.of(member.getFirstTeam()), Optional.of(member.getBenched()));
+			return new MemberDTO(member.getMemberId(), member.getName(), RoleDTO.convertToDTO(member.getRole()), Optional.of(member.getFirstTeam()), Optional.of(member.getBenched()));
 		} else {
-			return new MemberDTO(member.getMemberId(), member.getName(), member.getRole().getLabel(), null, null);
+			return new MemberDTO(member.getMemberId(), member.getName(), RoleDTO.convertToDTO(member.getRole()), null, null);
 		}
 	}
 }
