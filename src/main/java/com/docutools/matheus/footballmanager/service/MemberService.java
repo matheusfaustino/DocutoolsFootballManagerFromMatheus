@@ -62,7 +62,6 @@ public class MemberService {
 	 * @return List of all members based on page and size
 	 */
 	public List<MemberDTO> listAllPaginated(int page, int size) {
-		/* @todo add orderby and role */
 		Page<Member> members = this.membersRepository.findAll(PageRequest.of(page, size));
 
 		return members.stream()
