@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/roles")
-@Api(value = "Role")
-public class RoleController {
+@RequestMapping("/api/auth/roles")
+@Api(value = "Authenticated JWT Role")
+public class AuthenticatedRoleController {
 	@Autowired
 	private RoleService roleService;
 
