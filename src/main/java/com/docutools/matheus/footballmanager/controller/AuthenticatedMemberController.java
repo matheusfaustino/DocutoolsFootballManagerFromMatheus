@@ -42,21 +42,9 @@ public class AuthenticatedMemberController {
 	}
 
 	@ApiOperation("Bulk delete multiple team members")
-	@DeleteMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity deleteMembers(@RequestBody List<UUID> uuids) {
-		this.memberService.deleteInBatch(uuids);
-
-		return ResponseEntity.ok().build();
-	}
-
-	@ApiOperation("Delete only one member")
 	@DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity deleteMember(@PathVariable("id") String uuid) {
-		/*
-		 to keep it simple, I transform it to a list to be able to reused the other function and maintain the same logic
-		 could be list.of if using java9+
-		 */
-		this.memberService.deleteInBatch(Stream.of(UUID.fromString(uuid)).collect(Collectors.toList()));
+	public ResponseEntity deleteMembers(@ApiParam(name = "id", value = "Comma-separated uuid", required = true) @PathVariable("id") List<String> uuids) {
+		this.memberService.deleteInBatch(uuids.stream().map(UUID::fromString).collect(Collectors.toList()));
 
 		return ResponseEntity.ok().build();
 	}

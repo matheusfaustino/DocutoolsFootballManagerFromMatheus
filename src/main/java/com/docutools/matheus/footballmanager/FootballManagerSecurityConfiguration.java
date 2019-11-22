@@ -20,7 +20,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class FootballManagerSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private static final Logger log = LogManager.getLogger(JwtAuthorizationFilter.class);
 
 	@Autowired
