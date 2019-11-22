@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
@@ -18,6 +19,7 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemberAddDTO {
 	@NotNull(message = "You should provide a name for the member")
+	@NotBlank(message = "You should provide a name for the member")
 	@Length(min = 3, max = 255)
 	private String name;
 
