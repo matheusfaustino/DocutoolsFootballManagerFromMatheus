@@ -24,42 +24,5 @@ import java.util.stream.Stream;
 @Api(value = "Authenticated JWT Member")
 @RestController
 @RequestMapping("/api/auth/members")
-public class AuthenticatedMemberController {
-	@Autowired
-	private MemberService memberService;
-
-	@ApiOperation("List all members from the team")
-	@GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<MemberDTO> listAll(
-			@RequestParam(required = false, defaultValue = "0") @PositiveOrZero int page,
-			@RequestParam(required = false, defaultValue = "10") @Positive int size) {
-		return this.memberService.listAllPaginated(page, size);
-	}
-
-	@ApiOperation("Get specific members. Id comma-separated is accept")
-	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<MemberDTO> fetchMember(@Valid @ApiParam(name = "id", value = "Comma-separated uuid", required = true) @PathVariable("id") List<String> uuids) {
-		/* I used this method because it throws exception if id not found */
-		return uuids.stream().map(uuid -> this.memberService.find(UUID.fromString(uuid))).collect(Collectors.toList());
-	}
-
-	@ApiOperation("Bulk delete multiple team members")
-	@DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity deleteMembers(@Valid @ApiParam(name = "id", value = "Comma-separated uuid", required = true) @PathVariable("id") List<String> uuids) {
-		this.memberService.deleteInBatch(uuids.stream().map(UUID::fromString).collect(Collectors.toList()));
-
-		return ResponseEntity.ok().build();
-	}
-
-	@ApiOperation("Add new member to the team")
-	@PostMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-	public MemberDTO addMember(@Valid @RequestBody MemberAddDTO memberAddDTO) {
-		return this.memberService.addMember(memberAddDTO);
-	}
-
-	@ApiOperation("Bulk update of team's members")
-	@PutMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<MemberDTO> updateMembers(@RequestBody @Valid ValidList<MemberUpdateDTO> membersUpdateDTO) {
-		return this.memberService.updateMember(membersUpdateDTO);
-	}
+public class AuthenticatedMemberController extends MemberController{
 }

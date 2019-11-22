@@ -15,13 +15,5 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/auth/roles")
 @Api(value = "Authenticated JWT Role")
-public class AuthenticatedRoleController {
-	@Autowired
-	private RoleService roleService;
-
-	@ApiOperation("List all roles available in the system")
-	@GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<RoleGenericDTO> index() {
-		return this.roleService.listAllRoles();
-	}
+public class AuthenticatedRoleController extends RoleController {
 }
