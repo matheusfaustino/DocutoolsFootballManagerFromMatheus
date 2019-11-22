@@ -1,11 +1,15 @@
 package com.docutools.matheus.footballmanager.controller;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
@@ -14,9 +18,9 @@ import java.util.Date;
 import java.util.HashMap;
 
 @RestControllerAdvice
-public class AssertExceptionController  extends ResponseEntityExceptionHandler {
-	@ExceptionHandler(value = ConstraintViolationException.class)
-	public ResponseEntity<?> handleAssertException(Exception exception, HttpServletRequest request) {
+public class AssertExceptionController  extends DefaultHandlerExceptionResolver {
+	@ExceptionHandler({ConstraintViolationException.class})
+	public ResponseEntity<?> handleAssertException(Exception exception, WebRequest request) {
 		String message;
 		Throwable cause, resultCause = exception;
 		while ((cause = resultCause.getCause()) != null && resultCause != cause) {
@@ -35,7 +39,7 @@ public class AssertExceptionController  extends ResponseEntityExceptionHandler {
 		errorMessage.put("status", String.valueOf(HttpStatus.BAD_REQUEST.value()));
 		errorMessage.put("error",HttpStatus.BAD_REQUEST.getReasonPhrase());
 		errorMessage.put("message",message);
-		errorMessage.put("path",request.getRequestURI().toString());
+		errorMessage.put("path",((ServletWebRequest)request).getRequest().getRequestURI());
 
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
 	}
