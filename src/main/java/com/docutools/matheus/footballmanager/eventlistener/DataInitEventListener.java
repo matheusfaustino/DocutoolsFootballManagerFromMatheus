@@ -1,6 +1,8 @@
 package com.docutools.matheus.footballmanager.eventlistener;
 
+import com.docutools.matheus.footballmanager.entity.Member;
 import com.docutools.matheus.footballmanager.entity.Role;
+import com.docutools.matheus.footballmanager.repository.MemberRepository;
 import com.docutools.matheus.footballmanager.repository.RoleRepository;
 import com.docutools.matheus.footballmanager.role.CoachRoles;
 import com.docutools.matheus.footballmanager.role.MedicalRoles;
@@ -19,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class DataInitEventListener {
 	@Autowired
 	private RoleRepository roleRepository;
+	@Autowired
+	private MemberRepository memberRepository;
 
 	@Transactional
 	@EventListener
@@ -100,5 +104,85 @@ public class DataInitEventListener {
 		this.roleRepository.save(masseurs);
 		this.roleRepository.save(physiotherapists);
 		this.roleRepository.save(psychologists);
+
+		Member gk = new Member();
+		gk.setFirstTeam(true);
+		gk.setName("Marcos");
+		gk.setRole(goalkeepers);
+
+		Member cb1 = new Member();
+		cb1.setFirstTeam(true);
+		cb1.setName("Roque Junior");
+		cb1.setRole(defenders);
+
+		Member cb2 = new Member();
+		cb2.setFirstTeam(true);
+		cb2.setName("Lucio");
+		cb2.setRole(defenders);
+
+		Member cb3 = new Member();
+		cb3.setFirstTeam(true);
+		cb3.setName("Edmilson");
+		cb3.setRole(defenders);
+
+		Member rwb = new Member();
+		rwb.setFirstTeam(true);
+		rwb.setName("Cafu");
+		rwb.setRole(defenders);
+
+		Member lwb = new Member();
+		lwb.setFirstTeam(true);
+		lwb.setName("Roberto Carlos");
+		lwb.setRole(defenders);
+
+		Member cm1 = new Member();
+		cm1.setFirstTeam(true);
+		cm1.setName("Gilberto Silva");
+		cm1.setRole(middleFielders);
+
+		Member cm2 = new Member();
+		cm2.setFirstTeam(true);
+		cm2.setName("Juninho");
+		cm2.setRole(middleFielders);
+
+		Member rf = new Member();
+		rf.setFirstTeam(true);
+		rf.setName("Ronaldinho");
+		rf.setRole(forwards);
+
+		Member cf = new Member();
+		cf.setFirstTeam(true);
+		cf.setName("Ronaldo");
+		cf.setRole(forwards);
+
+		Member lf = new Member();
+		lf.setFirstTeam(true);
+		lf.setName("Rivaldo");
+		lf.setRole(forwards);
+
+		Member cm3 = new Member();
+		cm3.setFirstTeam(false);
+		cm3.setBenched(true);
+		cm3.setName("Kaka");
+		cm3.setRole(middleFielders);
+
+		Member hCoachBrazil = new Member();
+		hCoachBrazil.setFirstTeam(true);
+		hCoachBrazil.setName("Luiz Felipe Scolari");
+		hCoachBrazil.setRole(headCoach);
+
+		this.memberRepository.save(gk);
+		this.memberRepository.save(cb1);
+		this.memberRepository.save(cb2);
+		this.memberRepository.save(cb3);
+		this.memberRepository.save(rwb);
+		this.memberRepository.save(lwb);
+		this.memberRepository.save(cm1);
+		this.memberRepository.save(cm2);
+		this.memberRepository.save(rf);
+		this.memberRepository.save(cf);
+		this.memberRepository.save(lf);
+		this.memberRepository.save(cm3);
+		this.memberRepository.save(hCoachBrazil);
 	}
 }
