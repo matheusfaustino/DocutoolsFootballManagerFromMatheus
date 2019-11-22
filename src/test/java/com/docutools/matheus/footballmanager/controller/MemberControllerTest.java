@@ -14,12 +14,4 @@ import org.springframework.test.web.servlet.MockMvc;
 public class MemberControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
-
-	@Test
-	void testListAllMembers() throws Exception {
-		this.mockMvc.perform(
-				get("/members/")
-				.contentType("application/json")
-		).andDo(print()).andExpect(status().isOk());
-	}
 }
